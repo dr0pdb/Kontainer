@@ -39,6 +39,7 @@ int run(P... params) {
  */
 int child_function(void *args) {
     clearenv(); // Clear the environment variables.
+    printf("Hello world from the child with pid: %d", getpid());
 
     run("/bin/sh");
     return EXIT_SUCCESS;
@@ -51,9 +52,9 @@ int child_function(void *args) {
  * @return
  */
 int main(int argc, char** argv) {
-    printf("Hello world from parent!\n");
+    printf("Hello world from parent with pid: %d\n", getpid());
 
-    clone(child_function, allocate_stack_memory(), CLONE_NEWUTS | SIGCHLD, 0);
+    clone(child_function, allocate_stack_memory(), CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD, 0);
     wait(nullptr);
 
     return EXIT_SUCCESS;

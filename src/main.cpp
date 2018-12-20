@@ -1,8 +1,14 @@
 #include <iostream>
 #include <sched.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/mount.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <fstream>
 
 /**
  * Utility function to allocated stack memory.
@@ -39,7 +45,8 @@ int run(P... params) {
  */
 int child_function(void *args) {
     clearenv(); // Clear the environment variables.
-    printf("Hello world from the child with pid: %d", getpid());
+    printf("Hello world from the child with pid: %d\n", getpid());
+    fflush(stdout);
 
     run("/bin/sh");
     return EXIT_SUCCESS;
@@ -53,6 +60,7 @@ int child_function(void *args) {
  */
 int main(int argc, char** argv) {
     printf("Hello world from parent with pid: %d\n", getpid());
+    fflush(stdout);
 
     clone(child_function, allocate_stack_memory(), CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD, 0);
     wait(nullptr);

@@ -26,6 +26,17 @@ char* allocate_stack_memory() {
     return stack + stack_size; // stack grows in opposite direction.
 }
 
+void setup_variables() {
+    clearenv();
+    setenv("TERM", "xterm-256color", 0);
+    setenv("PATH", "/bin/:/sbin/:usr/bin:/usr/sbin", 0);
+}
+
+void setup_root(const char* folder){
+    chroot(folder);
+    chdir("/");
+}
+
 /**
  * Wrapper method to replace the current process with a new one using exec system call.
  * @tparam P
@@ -44,9 +55,11 @@ int run(P... params) {
  * @return
  */
 int child_function(void *args) {
-    clearenv(); // Clear the environment variables.
     printf("Hello world from the child with pid: %d\n", getpid());
     fflush(stdout);
+
+    setup_variables(); // clear environment variables.
+    setup_root("./root"); // change the root of the application.
 
     run("/bin/sh");
     return EXIT_SUCCESS;

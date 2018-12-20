@@ -61,7 +61,15 @@ int child_function(void *args) {
     setup_variables(); // clear environment variables.
     setup_root("./root"); // change the root of the application.
 
-    run("/bin/sh");
+    mount("proc", "/proc", "proc", 0, 0); // mount procfs in the /root/proc directory.
+
+    auto run_bash = [](void *args) ->int { run("/bin/sh"); };
+
+    // We need to run bash in another process in order to clean up mounted procfs later.
+    clone(run_bash, allocate_stack_memory(), SIGCHLD, 0);
+    wait(nullptr);
+
+    umount("/proc");
     return EXIT_SUCCESS;
 }
 
